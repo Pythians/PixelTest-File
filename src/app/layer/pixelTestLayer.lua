@@ -15,6 +15,7 @@ function pixelTestLayer:onEnter()
     self.sp=display.newSprite(str):addTo(self):pos(display.cx,display.cy)
     
     self.spImage=ImageAlpha:createWithFile(str);
+--  self.spImage=ImageAlpha:createWithImage(str);
     self.spImage:retain();
 
     
@@ -22,8 +23,8 @@ function pixelTestLayer:onEnter()
     restart:setPosition(100,100);    
     restart:registerScriptTapHandler(function()
         print("menu touch");
-        
-        alphaFile()
+        print (self.spImage:saveToFile())
+--        alphaFile()
     end)
     
     local menu = cc.Menu:create(restart);

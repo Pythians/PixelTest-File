@@ -8,6 +8,9 @@
 
 #include "ImageAlphaLut.h"
 
+// 文件头大小
+#define FILEHEADINFO (sizeof(int) * 7 + sizeof(bool) + sizeof(char) * 50)
+
 const unsigned char ImageAlphaLut::BIT[8] = {
     0x01,0x02,0x04,0x08,
     0x10,0x20,0x40,0x80,
@@ -18,6 +21,7 @@ USING_NS_CC;
 
 ImageAlphaLut::ImageAlphaLut()
 : _alphaLut(nullptr)
+, _name(nullptr)
 , _width(0)
 , _height(0)
 , _offsetX(0)
@@ -32,6 +36,7 @@ ImageAlphaLut::ImageAlphaLut()
 ImageAlphaLut::~ImageAlphaLut()
 {
     CC_SAFE_FREE(_alphaLut);
+    CC_SAFE_FREE(_name);
 }
 
 
@@ -83,29 +88,53 @@ ImageAlphaLut* ImageAlphaLut::createWithImageAndClip(const std::string file){
 
 bool ImageAlphaLut::initWithFile(const std::string file)
 {
- 
-    _offsetX = 40;
-    _offsetY = 0;
-    _offsetWidth = 487;
-    _offsetHeight = 403;
-    _width = 572;
-    _height = 417;
-    _isOptimize = true;
+    const char * cpath = "/Users/wjdev02/project/luaGameTemplate/res/test/test.bit";
     
-    auto fp = fopen("/Users/wjdev02/project/luaGameTemplate/res/test/test.bit", "rb");
+//    if (file != "" ) {
+//        cpath = file.c_str();
+//    }
     
+    // 打开文件
+    auto fp = fopen(cpath, "rb");
+    // 获取文件大小
     fseek(fp, 0, SEEK_END);
     long fs = ftell(fp);
     rewind(fp);
     
-    _alphaLut = static_cast<unsigned char *>(malloc(fs * sizeof(unsigned char)));
+    // 分配文件头信息 BUFF
+    unsigned char * buff = (unsigned char *)malloc(FILEHEADINFO);
+    // 读取文件头信息
+    size_t rs = fread(buff, sizeof(unsigned char), FILEHEADINFO, fp);
+
+    CCASSERT(rs == FILEHEADINFO, "Read file info error");
+
+    // 从 BUFF 中提取信息
+    int * p = (int *)buff;
+    _width          = *(++p);
+    _height         = *(++p);
+    _offsetX        = *(++p);
+    _offsetY        = *(++p);
+    _offsetWidth    = *(++p);
+    _offsetHeight   = *(++p);
+    bool * bp = (bool*)(++p);
+    _isOptimize     = *bp;
     
-    if(fs != fread(_alphaLut, sizeof(unsigned char), fs, fp))
-        log("file read error");
+    char * cp = (char*)(++bp);
+    _name = (char*)malloc(strlen(cp));
+    strcpy(_name, cp);
+
+    // 释放 BUFF
+    CC_SAFE_FREE(buff);
     
+    // 分配查找表 内存
+    _alphaLut = static_cast<unsigned char *>(malloc((fs - FILEHEADINFO) * sizeof(unsigned char)));
+
+    // 读取查找表信息
+    rs = fread(_alphaLut, sizeof(unsigned char), fs, fp);
+    CCASSERT(fs- FILEHEADINFO == rs, "Read data error");
+    
+    // 关闭文件
     fclose(fp);
-    
-//    printLut();
     
     return true;
 }
@@ -113,7 +142,10 @@ bool ImageAlphaLut::initWithFile(const std::string file)
 
 bool ImageAlphaLut::initWithImage(std::string file)
 {
-    _name = file;
+    _name = (char *)malloc(file.length());
+    strcpy(_name, file.c_str());
+    
+    
     bool b = true;
     auto img = new Image();
     
@@ -144,13 +176,6 @@ bool ImageAlphaLut::initWithImageAndClip(const std::string file)
     bool b = initWithImage(file);
     // 设置偏移
     setOffsetAndSize();
-    
-    log("offset :  w %d h %d", _offsetWidth, _offsetHeight);
-    log("offset :  x %d y %d", _offsetX, _offsetY);
-    log("width: %d height: %d", _width,_height);
-
-    
-//    saveToFile("");
     
     return b;
 }
@@ -286,35 +311,55 @@ void ImageAlphaLut::moveBuffer()
 
 bool ImageAlphaLut::saveToFile(const std::string path)
 {
-    bool b;
+    // 分配文件头 BUFF
+    unsigned char * buff = (unsigned char *)malloc(FILEHEADINFO);
+    
+    CCASSERT(buff, "No more mem");
+    
+    // 基本信息保存到 BUFF
+    int * p = (int *)buff;
+    *p = 0x89;
+    *(++p) = _width;
+    *(++p) = _height;
+    *(++p) = _offsetX;
+    *(++p) = _offsetY;
+    *(++p) = _offsetWidth;
+    *(++p) = _offsetHeight;
 
-    char *s = "/Users/wjdev02/project/luaGameTemplate/res/test";
+    bool * bp = (bool*)(++p);
+    *bp = _isOptimize;
     
-    if (!FileUtils::getInstance()->createDirectory(s))
-        log("create dir fail");
+    char * cp = (char*)(++bp);
+    strcpy(cp, _name);
     
-//    const char * fnn = "/test.bit";
-//    auto fn = strcat(s, fnn);
-    auto fp = fopen("/Users/wjdev02/project/luaGameTemplate/res/test/test.bit", "wb+");
-//    fseek(fp, 0, SEEK_END);
-//    long ls = ftell(fp);
-//    rewind(fp);
-//    char * bu = (char*)malloc(sizeof(char) * ls);
-//
-//    ls = fread(bu, 1, ls, fp);
     
-    size_t ws = fwrite(_alphaLut, sizeof(unsigned char), getBufferSize(), fp);
+//    char *file = "/Users/wjdev02/project/luaGameTemplate/res/test";
+//    if (!FileUtils::getInstance()->createDirectory(s))
+//        log("create dir fail");
+    
+    const char * cpath = "/Users/wjdev02/project/luaGameTemplate/res/test/test.bit";
+    
+    if (path != "" ) {
+        cpath = path.c_str();
+    }
+    
+    // 打开文件
+    auto fp = fopen(cpath, "wb");
+
+    // 写入文件
+    size_t ws = fwrite(buff, sizeof(unsigned char), FILEHEADINFO, fp);
+    
+    CCASSERT(ws == FILEHEADINFO, "Write file info error");
+    
+    ws = fwrite(_alphaLut, sizeof(unsigned char), getBufferSize(), fp);
+    
+    CCASSERT(ws == getBufferSize(), "Write file data error");
+    // 关闭文/Users/wjdev02件
     fclose(fp);
-    log("-- write %ld", ws);
+    // 释放 BUFF
+    CC_SAFE_FREE(buff);
     
-//    log("%s")
-    
-//    
-//    if (path) {
-//        
-//    }
-//    
-    return b;
+    return true;
 }
 
 void ImageAlphaLut::printLut() const {

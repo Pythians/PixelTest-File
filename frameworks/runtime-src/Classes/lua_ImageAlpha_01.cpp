@@ -46,6 +46,40 @@ tolua_lerror:
     return 0;
 }
 
+int lua_cocos2dx_ImageAlpha_createWithImage(lua_State * tolua)
+{
+    int argc = 0;
+    bool ok  = true;
+#if COCOS2D_DEBUG >= 1
+    tolua_Error tolua_err;
+#endif
+    
+#if COCOS2D_DEBUG >= 1
+    if (!tolua_isusertable(tolua,1,"ImageAlpha",0,&tolua_err)) goto tolua_lerror;
+#endif
+    
+    argc = lua_gettop(tolua) - 1;
+    
+    if (argc == 1) {
+        std::string arg;
+        ok &= luaval_to_std_string(tolua, 2, &arg, "ImageAlpha:createWithImage");
+        if (ok) {
+            auto ret = ImageAlphaLut::createWithImage(arg);
+            object_to_luaval<ImageAlphaLut>(tolua,"ImageAlpha",(ImageAlphaLut*)ret);
+            return 1;
+        }
+    }
+    
+    luaL_error(tolua, "%s has wrong number of arguments: %d, was expecting %d", "ImageAlpha:createWithImage",argc, 2);
+    return 0;
+    
+#if COCOS2D_DEBUG >= 1
+tolua_lerror:
+    tolua_error(tolua,"#ferror in function 'lua_cocos2dx_ImageAlpha_createWithImage'.",&tolua_err);
+#endif
+    return 0;
+}
+
 int lua_cocos2dx_ImageAlpha_createWithImageAndClip(lua_State * tolua)
 {
     int argc = 0;
@@ -98,7 +132,7 @@ int lua_cocos2dx_ImageAlpha_isPixelAlpha(lua_State * tolua)
 #if COCOS2D_DEBUG >= 1
     if (!cobj)
     {
-        tolua_error(tolua,"invalid 'cobj' in function 'lua_cocos2dx_ImageAlpha_addChild'", nullptr);
+        tolua_error(tolua,"invalid 'cobj' in function 'lua_cocos2dx_ImageAlpha_isPixelAlpha'", nullptr);
         return 0;
     }
 #endif
@@ -125,6 +159,59 @@ int lua_cocos2dx_ImageAlpha_isPixelAlpha(lua_State * tolua)
 #if COCOS2D_DEBUG >= 1
 tolua_lerror:
     tolua_error(tolua,"#ferror in function 'lua_cocos2dx_ImageAlpha_isPixelAlpha'.",&tolua_err);
+#endif
+    return 0;
+}
+
+
+int lua_cocos2dx_ImageAlpha_saveToFile(lua_State * tolua)
+{
+    int argc = 0;
+    bool ok  = true;
+    ImageAlphaLut * cobj = nullptr;
+    
+#if COCOS2D_DEBUG >= 1
+    tolua_Error tolua_err;
+#endif
+    
+#if COCOS2D_DEBUG >= 1
+    if (!tolua_isusertype(tolua,1,"ImageAlpha",0,&tolua_err)) goto tolua_lerror;
+#endif
+    
+    cobj = (ImageAlphaLut*)tolua_tousertype(tolua, 1, 0);
+    
+#if COCOS2D_DEBUG >= 1
+    if (!cobj)
+    {
+        tolua_error(tolua,"invalid 'cobj' in function 'lua_cocos2dx_ImageAlpha_saveToFile'", nullptr);
+        return 0;
+    }
+#endif
+    
+    argc = lua_gettop(tolua) - 1;
+    
+    if (0 == argc)
+    {
+        bool b = cobj->saveToFile();
+        lua_pushboolean(tolua, b);
+        return 1;
+    }
+    if (argc == 1) {
+        std::string arg;
+        ok &= luaval_to_std_string(tolua, 2, &arg, "ImageAlpha:saveToFile");
+        if (ok) {
+            bool b = cobj->saveToFile(arg);
+            lua_pushboolean(tolua, b);
+            return 1;
+        }
+    }
+    
+    luaL_error(tolua, "%s has wrong number of arguments: %d, was expecting %d", "ImageAlpha:saveToFile",argc, 2);
+    return 0;
+    
+#if COCOS2D_DEBUG >= 1
+tolua_lerror:
+    tolua_error(tolua,"#ferror in function 'lua_cocos2dx_ImageAlpha_saveToFile'.",&tolua_err);
 #endif
     return 0;
 }
@@ -200,8 +287,10 @@ int lua_register_COD_ImageAlpha(lua_State* tolua)
     tolua_beginmodule(tolua, "ImageAlpha");
     
     tolua_function(tolua, "createWithFile", lua_cocos2dx_ImageAlpha_createWithFile);
+    tolua_function(tolua, "createWithImage", lua_cocos2dx_ImageAlpha_createWithImage);
     tolua_function(tolua, "createWithImageAndClip", lua_cocos2dx_ImageAlpha_createWithImageAndClip);
     tolua_function(tolua, "isPixelAlpha", lua_cocos2dx_ImageAlpha_isPixelAlpha);
+    tolua_function(tolua, "saveToFile", lua_cocos2dx_ImageAlpha_saveToFile);
     
     tolua_endmodule(tolua);
     tolua_function(tolua, "alphaFile", lua_cocos2dx_ImageAlpha_alphaFile);

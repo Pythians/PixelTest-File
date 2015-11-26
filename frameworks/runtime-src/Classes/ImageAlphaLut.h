@@ -27,7 +27,7 @@ public:
     // 检测像素 X Y 为原始图片坐标
     bool isPixelAlpha(int x, int y) const;
     // 保存 BUFF 为文件
-    bool saveToFile(const std::string path);
+    bool saveToFile(const std::string path = "");
     
     void printLut() const;  // 输出
 
@@ -39,7 +39,7 @@ public:
     inline int getOffsetY() const {return _offsetY;}                // 返回偏移 Y
     inline int getOffsetWidth() const {return _offsetWidth;}        // 返回偏移宽
     inline int getOffsetHeight() const { return _offsetHeight;}     // 返回偏移高
-    inline std::string getName() const { return _name;}             // 返回引用图片名
+    inline char * getName() const { return _name;}             // 返回引用图片名
     int getBufferSize()const                                        // 返回 BUFF 占用
     {
         if (_isOptimize)
@@ -56,7 +56,7 @@ private:
     // 查找表 BUFF
     unsigned char * _alphaLut;
     // 图片名
-    std::string _name;
+    char * _name;
     // 原始宽高
     int _width;
     int _height;
