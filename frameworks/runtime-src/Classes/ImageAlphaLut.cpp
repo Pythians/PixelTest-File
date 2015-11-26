@@ -10,6 +10,10 @@
 
 // 文件头大小
 #define FILEHEADINFO (sizeof(int) * 7 + sizeof(bool) + sizeof(char) * 50)
+// 文件后缀
+#define FILEEXTENSION "bit"
+// 文件默认保存位置
+#define FILESAVEDIR "/Users/wjdev02/project/luaGameTemplate/res/"
 
 const unsigned char ImageAlphaLut::BIT[8] = {
     0x01,0x02,0x04,0x08,
@@ -88,14 +92,8 @@ ImageAlphaLut* ImageAlphaLut::createWithImageAndClip(const std::string file){
 
 bool ImageAlphaLut::initWithFile(const std::string file)
 {
-    const char * cpath = "/Users/wjdev02/project/luaGameTemplate/res/test/test.bit";
-    
-//    if (file != "" ) {
-//        cpath = file.c_str();
-//    }
-    
     // 打开文件
-    auto fp = fopen(cpath, "rb");
+    auto fp = fopen(FileUtils::getInstance()->fullPathForFilename(file).c_str(), "rb");
     // 获取文件大小
     fseek(fp, 0, SEEK_END);
     long fs = ftell(fp);
@@ -332,19 +330,21 @@ bool ImageAlphaLut::saveToFile(const std::string path)
     char * cp = (char*)(++bp);
     strcpy(cp, _name);
     
-    
-//    char *file = "/Users/wjdev02/project/luaGameTemplate/res/test";
-//    if (!FileUtils::getInstance()->createDirectory(s))
-//        log("create dir fail");
-    
-    const char * cpath = "/Users/wjdev02/project/luaGameTemplate/res/test/test.bit";
-    
-    if (path != "" ) {
-        cpath = path.c_str();
+    // 设置文件保存位置
+    std::string spath;
+    if (FileUtils::getInstance()->isDirectoryExist(path))
+    {
+        spath = path + _name;
     }
-    
+    else
+    {
+        spath += FILESAVEDIR;
+        spath += _name;
+    }
+    spath.replace(spath.find_last_of(".") + 1, spath.length(), FILEEXTENSION);
+
     // 打开文件
-    auto fp = fopen(cpath, "wb");
+    auto fp = fopen(spath.c_str(), "wb");
 
     // 写入文件
     size_t ws = fwrite(buff, sizeof(unsigned char), FILEHEADINFO, fp);

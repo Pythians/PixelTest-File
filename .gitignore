@@ -1,0 +1,15 @@
+*.bit
+.DS_Store
+.buildpath
+.cocos-project.json
+.project
+
+.*/
+output/
+runtime/
+frameworks/runtime-src/proj.android
+frameworks/runtime-src/proj.ios_mac
+frameworks/runtime-src/proj.win32
+frameworks/cocos2d-x/
+src/cocos/
+src/framework/

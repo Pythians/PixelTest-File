@@ -10,11 +10,11 @@ function pixelTestLayer:ctor()
 end
 
 function pixelTestLayer:onEnter()
-    local str="building_1_1.png"
+    local str="/Users/wjdev02/project/luaGameTemplate/runtime/mac/luaGameTemplate Mac.app/Contents/Resources/res/building_1_1.png"
 
     self.sp=display.newSprite(str):addTo(self):pos(display.cx,display.cy)
     
-    self.spImage=ImageAlpha:createWithFile(str);
+    self.spImage=ImageAlpha:createWithFile("building_1_1.bit");
 --  self.spImage=ImageAlpha:createWithImage(str);
     self.spImage:retain();
 
@@ -23,7 +23,7 @@ function pixelTestLayer:onEnter()
     restart:setPosition(100,100);    
     restart:registerScriptTapHandler(function()
         print("menu touch");
-        print (self.spImage:saveToFile())
+        print (self.spImage:saveToFile("xx"))
 --        alphaFile()
     end)
     

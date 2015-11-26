@@ -98,6 +98,11 @@ bool AppDelegate::applicationDidFinishLaunching()
         return false;
     }
 #endif
+    
+    auto paths = FileUtils::getInstance()->getSearchPaths();
+    paths.push_back("/Users/wjdev02/project/luaGameTemplate/res/");
+    FileUtils::getInstance()->setSearchPaths(paths);
+    
     //Add<--
     return true;
 }
