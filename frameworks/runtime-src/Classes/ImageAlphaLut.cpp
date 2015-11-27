@@ -307,7 +307,7 @@ void ImageAlphaLut::moveBuffer()
     _alphaLut = buff;
 }
 
-bool ImageAlphaLut::saveToFile(const std::string path)
+bool ImageAlphaLut::saveToFile(const std::string path) const
 {
     // 分配文件头 BUFF
     unsigned char * buff = (unsigned char *)malloc(FILEHEADINFO);
@@ -334,7 +334,13 @@ bool ImageAlphaLut::saveToFile(const std::string path)
     std::string spath;
     if (FileUtils::getInstance()->isDirectoryExist(path))
     {
-        spath = path + _name;
+        if (path.find_last_of('/') == path.length() - 1) {
+            spath = path + _name;
+        }
+        else
+        {
+            spath = path + '/' + _name;
+        }
     }
     else
     {

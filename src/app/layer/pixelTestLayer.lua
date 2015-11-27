@@ -14,17 +14,21 @@ function pixelTestLayer:onEnter()
 
     self.sp=display.newSprite(str):addTo(self):pos(display.cx,display.cy)
     
-    self.spImage=ImageAlpha:createWithFile("building_1_1.bit");
---  self.spImage=ImageAlpha:createWithImage(str);
-    self.spImage:retain();
+--    self.spImage=ImageAlpha:createWithFile("building_1_1.bit");
+--    self.spImage=ImageAlpha:createWithImage(str);
+--    self.spImage:retain();
 
     
     local restart = cc.MenuItemImage:create("restart.png","restart.png");
     restart:setPosition(100,100);    
     restart:registerScriptTapHandler(function()
-        print("menu touch");
-        print (self.spImage:saveToFile("xx"))
---        alphaFile()
+        print("--------menu touch------------");
+        local t = ImageAlphaHelper:new()
+        local x = t:getAllfiles()
+        print(x[1]);
+--        for p in x do
+--        	print (p)
+--        end
     end)
     
     local menu = cc.Menu:create(restart);
@@ -56,8 +60,8 @@ function pixelTestLayer:_onTouchBegan(touch,event)
 end
 
 function pixelTestLayer:onExit()
-    self.spImage:release()
-    self.spImage=nil
+--    self.spImage:release()
+--    self.spImage=nil
 end
 
 return pixelTestLayer
