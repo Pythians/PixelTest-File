@@ -39,28 +39,30 @@ void ImageAlphaHelper::findFiles( )
 
     std::vector<std::string> files;
 
-    if (FileUtils::getInstance()->isDirectoryExist(_dir))
+    auto dir = (_dir + "/").c_str();
+    dirent * ptr;
+    DIR * Dir = opendir(_dir.c_str());
+    
+    CCASSERT(Dir, "Can't Read Directory");
+    
+    while (( ptr = readdir(Dir)) != nullptr )
     {
-        auto dir = _dir + "/";
-        dirent * ptr;
-        DIR * Dir = opendir(dir.c_str());
-        
-        while (( ptr = readdir(Dir)) != nullptr )
+        if (ptr->d_name[0] == '.')
         {
-            if (ptr->d_name[0] == '.')
-            {
-                continue;
-            }
-            else if (ptr->d_type == DT_DIR )
-            {
-                _allFolders.push_back(dir + ptr->d_name);
-            }
-            else
-            {
-                _allFiles.push_back( dir + ptr->d_name );
-            }
+            continue;
+        }
+        else if (ptr->d_type == DT_DIR )
+        {
+//            _allFolders.push_back(dir + ptr->d_name);
+            log("find a Directory: %s", ptr->d_name);
+        }
+        else
+        {
+//            _allFiles.push_back( dir + ptr->d_name );
+            log("find a File: %s", ptr->d_name);
         }
     }
+
 }
 
 void ImageAlphaHelper::readImage()
@@ -69,6 +71,7 @@ void ImageAlphaHelper::readImage()
                   {
                       if (f.find(".png") != std::string::npos)
                       {
+                          log("Add pic: %s", f.c_str());
                           auto img = f.substr(f.find_last_of("/") + 1);
                           if (_isClip)
                           {

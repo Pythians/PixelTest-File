@@ -21,6 +21,11 @@ public:
     
     void saveToFiles( std::string dir);
     
+    inline std::string getDirectory() const
+    {
+        return _dir;
+    }
+    
     void setDirectory(std::string dir)
     {
         _dir = dir;

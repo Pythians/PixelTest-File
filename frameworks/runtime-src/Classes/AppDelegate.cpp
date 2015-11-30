@@ -2,7 +2,7 @@
 #include "CCLuaEngine.h"
 #include "SimpleAudioEngine.h"
 #include "cocos2d.h"
-#include "lua_ImageAlpha_01.hpp"
+#include "lua_ImageAlpha_manual.hpp"
 
 //#include "lua_module_register.h"
 //Add-->
