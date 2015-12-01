@@ -27,7 +27,7 @@ public:
     // 检测像素 X Y 为原始图片坐标
     bool isPixelAlpha(int x, int y) const;
     // 保存 BUFF 为文件
-    bool saveToFile(const std::string path = "") const;
+    bool saveToFile(const std::string path) const;
     
     void printLut() const;  // 输出
 

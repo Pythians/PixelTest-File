@@ -29,7 +29,9 @@ public:
     void setDirectory(std::string dir)
     {
         _dir = dir;
-        findFiles();
+        _allFiles.clear();
+        _allFolders.clear();
+        findFiles(_dir);
     }
     
     std::vector<std::string> & getAllFiles()
@@ -53,15 +55,18 @@ public:
     }
 protected:
     
-    void findFiles();
+    void findFiles( std::string dir);
     void readImage();
+    void saveHelper(std::string dir, int num);
     void callback(bool b, float load, std::string msg);
     
 private:
     cocos2d::Map<std::string, ImageAlphaLut*> _imgAl;
     
     bool _isClip;
+    
     std::string _dir;
+    std::vector<int> _total;
     std::vector<std::string> _allFiles;
     std::vector<std::string> _allFolders;
 };
