@@ -5,9 +5,32 @@ end)
 
 function AlphaLutCreate:ctor()
 	self:setNodeEventEnabled(true)
-	self.alphaLut = ImageAlphaHelper:new()
+    self.alphaLut = ImageAlphaHelper:new()
 	self.alphaLut:retain()
+	
+    print( device.writablePath )
 end
+
+--device.writablePath = "/Users/wjdev02/Desktop/luaGameTemplate/"
+
+function AlphaLutCreate:keep()
+    self.alphaLut:setClip(false)
+    self.alphaLut:setDirectory( device.writablePath .. "res/keep")
+    self.alphaLut:saveToFiles( device.writablePath .. "res/output/keep")
+end
+
+function AlphaLutCreate:clip()
+
+    self.alphaLut:setDirectory( device.writablePath .. "res/clip")
+    self.alphaLut:saveToFiles(device.writablePath .. "res/output/clip")
+
+end
+
+function AlphaLutCreate:multi()
+    self.alphaLut:setDirectory( device.writablePath .. "res/multi")
+    self.alphaLut:saveToFiles(device.writablePath .. "res/output/multi")
+end
+
 
 function AlphaLutCreate:onTouchBegin(touch,event)
     
@@ -29,26 +52,16 @@ function AlphaLutCreate:onTouchBegin(touch,event)
     bt2Area.x = 0
     bt2Area.y = 0
     
-    local lut = self.alphaLut
-    local b;    
-    
     if cc.rectContainsPoint(bt1Area,bt1Pos) then
         print("Touch button0 keep")
-
-        lut:setClip(false)
-        lut:setDirectory( device.writablePath .. "res/keep")
-        lut:saveToFiles(device.writablePath .. "res/output/keep")
-        
+        self:keep()
         self.label:setTextColor(cc.c4b(0,215,215,255))
         self.label:setString("keep OK!!")
     end
 
     if cc.rectContainsPoint(bt0Area,bt0Pos) then
         print("Touch button1 clip")
-        
-        lut:setDirectory( device.writablePath .. "res/clip")
-        lut:saveToFiles(device.writablePath .. "res/output/clip")
-
+        self:clip()
         self.label:setTextColor(cc.c4b(215,215,0,255))
         self.label:setString("clip OK!!")
     end
@@ -56,9 +69,7 @@ function AlphaLutCreate:onTouchBegin(touch,event)
     if cc.rectContainsPoint(bt2Area,bt2Pos) then
         print("Touch button2 multi")
 
-        lut:setDirectory( device.writablePath .. "res/multi")
-        lut:saveToFiles(device.writablePath .. "res/output/multi")
-        
+        self:multi()
         self.label:setTextColor(cc.c4b(215,0,215,255))
         self.label:setString("multi OK!!")
     end
@@ -113,6 +124,7 @@ end
 
 function AlphaLutCreate:onExit()
 
+    self.alphaLut:release()
 
 end
 

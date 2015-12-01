@@ -190,12 +190,12 @@ int lua_cocos2dx_ImageAlpha_saveToFile(lua_State * tolua)
     
     argc = lua_gettop(tolua) - 1;
     
-    if (0 == argc)
-    {
-        bool b = cobj->saveToFile();
-        lua_pushboolean(tolua, b);
-        return 1;
-    }
+//    if (0 == argc)
+//    {
+//        bool b = cobj->saveToFile();
+//        lua_pushboolean(tolua, b);
+//        return 1;
+//    }
     if (argc == 1) {
         std::string arg;
         ok &= luaval_to_std_string(tolua, 2, &arg, "ImageAlpha:saveToFile");

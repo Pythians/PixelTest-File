@@ -140,8 +140,13 @@ bool ImageAlphaLut::initWithFile(const std::string file)
 
 bool ImageAlphaLut::initWithImage(std::string file)
 {
-    _name = (char *)malloc(file.length());
-    strcpy(_name, file.c_str());
+    auto na = file;
+    if (FileUtils::getInstance()->isAbsolutePath(file.c_str()))
+    {
+        na = file.substr(file.find_last_of("/") + 1);
+    }
+    _name = (char *)malloc(na.length());
+    strcpy(_name, na.c_str());
     
     
     bool b = true;
@@ -351,7 +356,9 @@ bool ImageAlphaLut::saveToFile(const std::string path) const
 
     // 打开文件
     auto fp = fopen(spath.c_str(), "wb");
-
+    
+    CCASSERT(fp, "Open file error");
+    
     // 写入文件
     size_t ws = fwrite(buff, sizeof(unsigned char), FILEHEADINFO, fp);
     
