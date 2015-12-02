@@ -11,11 +11,19 @@
 
 #include "cocos2d.h"
 
+// 文件头大小
+#define FILEHEADINFO (sizeof(int) * 7 + sizeof(bool) + sizeof(char) * 50)
+// 文件后缀
+#define FILEEXTENSION "bit"
+
+
 class ImageAlphaLut : public cocos2d::Ref
 {
     
     
 public:
+    // 从内存创建
+    static ImageAlphaLut * createWithBuff(const void * buff);
     // 从文件创建查找表
     static ImageAlphaLut * createWithFile(const std::string file);
     // 创建图标透明查找表
@@ -39,7 +47,8 @@ public:
     inline int getOffsetY() const {return _offsetY;}                // 返回偏移 Y
     inline int getOffsetWidth() const {return _offsetWidth;}        // 返回偏移宽
     inline int getOffsetHeight() const { return _offsetHeight;}     // 返回偏移高
-    inline char * getName() const { return _name;}             // 返回引用图片名
+    inline char * getName() const { return _name;}                  // 返回引用图片名
+    inline void * getBuffer()const{ return _alphaLut;}              // 返回 BUFF 指针
     int getBufferSize()const                                        // 返回 BUFF 占用
     {
         if (_isOptimize)
@@ -95,6 +104,7 @@ protected:
     ImageAlphaLut();
     virtual ~ImageAlphaLut();
     
+    virtual bool initWithBuff(const void * buff);
     virtual bool initWithFile(const std::string file);
     virtual bool initWithImage(const std::string image);
     virtual bool initWithImageAndClip( const std::string file);

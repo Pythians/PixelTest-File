@@ -10,22 +10,26 @@ function pixelTestLayer:ctor()
 end
 
 function pixelTestLayer:onEnter()
-    local str="/Users/wjdev02/project/luaGameTemplate/runtime/mac/luaGameTemplate Mac.app/Contents/Resources/res/building_1_1.png"
+    local str="keep/building_1_1.png"
 
     self.sp=display.newSprite(str):addTo(self):pos(display.cx,display.cy)
     
---    self.spImage=ImageAlpha:createWithFile("building_1_1.bit");
+    local luts = ImageAlphaHelper:new()
+    luts:createAlphaLutsWithFile( "/Users/wjdev02/Desktop/" .. "res/output/keep/keep.bit")
+
+    self.spImage = luts:getImageImageLut("building_1_1.png");
+--    self.spImage=ImageAlpha:createWithFile("output/keep/building_1_1.bit");
 --    self.spImage=ImageAlpha:createWithImage(str);
---    self.spImage:retain();
+    self.spImage:retain();
 
     
     local restart = cc.MenuItemImage:create("restart.png","restart.png");
     restart:setPosition(100,100);    
     restart:registerScriptTapHandler(function()
         print("--------menu touch------------");
-        local t = ImageAlphaHelper:new()
-        local x = t:getAllfiles()
-        print(x[1]);
+        -- local t = ImageAlphaHelper:new()
+        -- local x = t:getAllfiles()
+        -- print(x[1]);
 --        for p in x do
 --        	print (p)
 --        end
@@ -60,8 +64,8 @@ function pixelTestLayer:_onTouchBegan(touch,event)
 end
 
 function pixelTestLayer:onExit()
---    self.spImage:release()
---    self.spImage=nil
+   self.spImage:release()
+   self.spImage=nil
 end
 
 return pixelTestLayer

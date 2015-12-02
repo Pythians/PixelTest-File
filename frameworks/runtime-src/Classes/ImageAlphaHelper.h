@@ -19,7 +19,8 @@ public:
     explicit ImageAlphaHelper( std::string dir);
     ~ImageAlphaHelper();
     
-    void saveToFiles( std::string dir);
+    void saveToFiles( std::string dir );
+    void saveInOneFile ( std::string dir );
     
     inline std::string getDirectory() const
     {
@@ -34,6 +35,18 @@ public:
         findFiles(_dir);
     }
     
+    void createAlphaLutsWithFile(const std::string & file);
+    
+    ImageAlphaLut * getImageImageLut(const std::string & fname) const
+    {
+        return _imgAl.at(fname);
+    }
+    
+    cocos2d::Map<std::string, ImageAlphaLut*> & getLutMap()
+    {
+        return _imgAl;
+    }
+    
     std::vector<std::string> & getAllFiles()
     {
         return _allFiles;
@@ -44,12 +57,12 @@ public:
         return _allFolders;
     }
     
-    inline void setClip(bool b)
+    inline void setIsClip(bool b)
     {
         _isClip = b;
     }
     
-    inline bool getClip() const
+    inline bool getIsClip() const
     {
         return _isClip;
     }
@@ -58,6 +71,7 @@ protected:
     void findFiles( std::string dir);
     void readImage();
     void saveHelper(std::string dir, int num);
+    void writeToFlie(FILE * fp, ImageAlphaLut * lut);
     void callback(bool b, float load, std::string msg);
     
 private:

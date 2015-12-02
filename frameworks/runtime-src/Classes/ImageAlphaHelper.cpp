@@ -28,6 +28,42 @@ ImageAlphaHelper::~ImageAlphaHelper()
 {
 }
 
+void ImageAlphaHelper::createAlphaLutsWithFile(const std::string &file)
+{
+    auto fn = FileUtils::getInstance()->fullPathForFilename(file);
+    
+    auto fp = fopen(fn.c_str(), "rb");
+    
+    fseek(fp, 0, SEEK_END);
+    CCASSERT(fp, "Can't open file");
+    size_t fl = ftell(fp);
+    rewind(fp);
+    
+    auto buff = (unsigned char *)malloc(fl);
+    
+    CCASSERT(buff, "No more memory");
+    
+    auto rl = fread(buff, sizeof(unsigned char), fl, fp);
+    
+    CCASSERT(rl == fl, "Read file error");
+    fclose(fp);
+    
+//    int * p = (int *)buff;
+//    buff = (unsigned char*)(++p);
+    
+    size_t bl = sizeof(int);
+    while (bl < fl)
+    {
+        auto lut = ImageAlphaLut::createWithBuff(buff + bl);
+        CCASSERT(lut, "create lut fail");
+        _imgAl.insert(lut->getName(), lut);
+        log("create lut : %s" , lut->getName());
+        bl += FILEHEADINFO - sizeof(int) + lut->getBufferSize();
+        log("buff lengh %ld", bl);
+    }
+    
+}
+
 void ImageAlphaHelper::callback(bool b, float load, std::string msg)
 {
     log("-- %f --   msg: %s", load, msg.c_str());
@@ -88,21 +124,12 @@ void ImageAlphaHelper::readImage()
 void ImageAlphaHelper::saveToFiles(std::string dir)
 {
     readImage();
-    int i = 0;
-    float s = _imgAl.size();
     
     if (_allFolders.empty())
     {
         std::for_each(_imgAl.begin(), _imgAl.end(), [&](std::pair<std::string, ImageAlphaLut*>pair)
                       {
-                          if (pair.second->saveToFile(dir))
-                          {
-                              callback(true, (++i)/ s, "save "+ pair.first +"'s alpha bit file success");
-                          }
-                          else
-                          {
-                              callback( false, (++i)/s, "save "+ pair.first + "'s alpha bit file error");
-                          }
+                          pair.second->saveToFile(dir);
                       });
     }
     else
@@ -112,7 +139,7 @@ void ImageAlphaHelper::saveToFiles(std::string dir)
             saveHelper(dir + '/' + _allFolders[i], i);
         }
     }
-    _imgAl.clear();
+//    _imgAl.clear();
 }
 
 void ImageAlphaHelper::saveHelper(std::string dir, int num)
@@ -138,4 +165,54 @@ void ImageAlphaHelper::saveHelper(std::string dir, int num)
         else
             log("No find file %s", file.c_str());
     }
+}
+
+void ImageAlphaHelper::saveInOneFile(std::string dir)
+{
+    readImage();
+    if (_allFolders.empty())
+    {
+        FileUtils::getInstance()->createDirectory(dir);
+        auto fn = dir + '/' + _dir.substr(_dir.find_last_of("/")  + 1 ) + '.' + FILEEXTENSION;
+        log("save file name : %s" ,fn.c_str());
+        
+        auto fp = fopen(fn.c_str(), "wb");
+        int p = 0x89;
+        size_t l = fwrite(&p, sizeof(int), 1, fp);
+        CCASSERT(l == 1, "Set head error");
+        
+        std::for_each(_imgAl.begin(), _imgAl.end(), [&](std::pair<std::string, ImageAlphaLut*>pair)
+                      {
+                          this->writeToFlie(fp, pair.second);
+                      });
+    }
+}
+
+void ImageAlphaHelper::writeToFlie(FILE *fp, ImageAlphaLut *lut)
+{
+    unsigned char * buff = (unsigned char *)malloc(FILEHEADINFO - sizeof(int));
+    
+    CCASSERT(buff, "No more memory");
+    
+    int * p = (int *)buff;
+    *p = lut->getWidth();
+    *(++p) = lut->getHeight();
+    *(++p) = lut->getOffsetX();
+    *(++p) = lut->getOffsetY();
+    *(++p) = lut->getOffsetWidth();
+    *(++p) = lut->getOffsetHeight();
+    
+    bool * bp = (bool *)(++p);
+    *bp = lut->isOptimize();
+    
+    char * cp = (char *)(++bp);
+    strcpy(cp, lut->getName());
+    
+    size_t len = fwrite(buff, sizeof(unsigned char), FILEHEADINFO - sizeof(int), fp);
+    
+    CCASSERT(len == FILEHEADINFO - sizeof(int), "write file error");
+    
+    len = fwrite(lut->getBuffer(), sizeof(unsigned char), lut->getBufferSize(), fp);
+    
+    CCASSERT(len == lut->getBufferSize(), "write file error");
 }

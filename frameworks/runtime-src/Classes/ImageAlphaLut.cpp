@@ -8,10 +8,6 @@
 
 #include "ImageAlphaLut.h"
 
-// 文件头大小
-#define FILEHEADINFO (sizeof(int) * 7 + sizeof(bool) + sizeof(char) * 50)
-// 文件后缀
-#define FILEEXTENSION "bit"
 // 文件默认保存位置
 #define FILESAVEDIR "/Users/wjdev02/project/luaGameTemplate/res/"
 
@@ -39,10 +35,26 @@ ImageAlphaLut::ImageAlphaLut()
 
 ImageAlphaLut::~ImageAlphaLut()
 {
+    log("---------------------------------------------------------------\n release lut: %s", _name);
     CC_SAFE_FREE(_alphaLut);
     CC_SAFE_FREE(_name);
 }
 
+ImageAlphaLut* ImageAlphaLut::createWithBuff(const void *buff)
+{
+    
+    auto ret = new ImageAlphaLut();
+    if (ret && ret->initWithBuff(buff))
+    {
+        ret->autorelease();
+    }
+    else
+    {
+        delete ret;
+        ret = nullptr;
+    }
+    return ret;
+}
 
 ImageAlphaLut* ImageAlphaLut::createWithFile(const std::string file){
     
@@ -100,15 +112,25 @@ bool ImageAlphaLut::initWithFile(const std::string file)
     rewind(fp);
     
     // 分配文件头信息 BUFF
-    unsigned char * buff = (unsigned char *)malloc(FILEHEADINFO);
+    unsigned char * buff = (unsigned char *)malloc(fs);
     // 读取文件头信息
-    size_t rs = fread(buff, sizeof(unsigned char), FILEHEADINFO, fp);
+    size_t rs = fread(buff, sizeof(unsigned char), fs, fp);
 
-    CCASSERT(rs == FILEHEADINFO, "Read file info error");
+    CCASSERT(rs == fs, "Read file info error");
 
+    fclose(fp);
+    int * p = (int *)buff;
+
+    return initWithBuff(++p);
+}
+
+
+bool ImageAlphaLut::initWithBuff(const void *buff)
+{
+    
     // 从 BUFF 中提取信息
     int * p = (int *)buff;
-    _width          = *(++p);
+    _width          = *(p);
     _height         = *(++p);
     _offsetX        = *(++p);
     _offsetY        = *(++p);
@@ -119,24 +141,21 @@ bool ImageAlphaLut::initWithFile(const std::string file)
     
     char * cp = (char*)(++bp);
     _name = (char*)malloc(strlen(cp));
+    
+    CCASSERT(_name, "No more memery");
     strcpy(_name, cp);
-
-    // 释放 BUFF
-    CC_SAFE_FREE(buff);
+    
     
     // 分配查找表 内存
-    _alphaLut = static_cast<unsigned char *>(malloc((fs - FILEHEADINFO) * sizeof(unsigned char)));
+    _alphaLut = static_cast<unsigned char *>(malloc(getBufferSize() * sizeof(unsigned char)));
+    CCASSERT(_alphaLut, "No more memery");
 
-    // 读取查找表信息
-    rs = fread(_alphaLut, sizeof(unsigned char), fs, fp);
-    CCASSERT(fs- FILEHEADINFO == rs, "Read data error");
+    unsigned char * data = (unsigned char*)buff;
     
-    // 关闭文件
-    fclose(fp);
-    
+    memcpy(_alphaLut, data + FILEHEADINFO - sizeof(int), getBufferSize() * sizeof(unsigned char));
+
     return true;
 }
-
 
 bool ImageAlphaLut::initWithImage(std::string file)
 {

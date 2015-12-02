@@ -11,24 +11,34 @@ function AlphaLutCreate:ctor()
     print( device.writablePath )
 end
 
---device.writablePath = "/Users/wjdev02/Desktop/luaGameTemplate/"
+path = "/Users/wjdev02/Desktop/"
 
 function AlphaLutCreate:keep()
-    self.alphaLut:setClip(false)
-    self.alphaLut:setDirectory( device.writablePath .. "res/keep")
-    self.alphaLut:saveToFiles( device.writablePath .. "res/output/keep")
+    self.alphaLut:setIsClip(false)
+    self.alphaLut:setDirectory( path .. "res/keep")
+    self.alphaLut:saveInOneFile( path .. "res/output/keep")
 end
 
 function AlphaLutCreate:clip()
 
-    self.alphaLut:setDirectory( device.writablePath .. "res/clip")
-    self.alphaLut:saveToFiles(device.writablePath .. "res/output/clip")
+    -- self.alphaLut:setDirectory( path .. "res/clip")
+    -- self.alphaLut:saveToFiles(path .. "res/output/clip")
 
+    self.alphaLut:createAlphaLutsWithFile( path .. "res/output/keep/keep.bit")
+
+    local luts = self.alphaLut:getLutMap()
+    print (type(luts["building_1_1.png"]))
+
+    local lut = self.alphaLut:getImageImageLut("building_1_1.png")
+    print(type(lut))
+    print(type(self.alphaLut))
+    
 end
 
 function AlphaLutCreate:multi()
-    self.alphaLut:setDirectory( device.writablePath .. "res/multi")
-    self.alphaLut:saveToFiles(device.writablePath .. "res/output/multi")
+    self.alphaLut:setDirectory( path .. "res/multi")
+    self.alphaLut:saveInOneFile(path .. "res/output/multi")
+
 end
 
 
