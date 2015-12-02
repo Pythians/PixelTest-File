@@ -97,7 +97,7 @@ void ImageAlphaHelper::findFiles( std::string dir)
             ++i;
         }
     }
-    _total.push_back(i);
+    if (i) _total.push_back(i);
 }
 
 void ImageAlphaHelper::readImage()
@@ -170,13 +170,14 @@ void ImageAlphaHelper::saveHelper(std::string dir, int num)
 void ImageAlphaHelper::saveInOneFile(std::string dir)
 {
     readImage();
+    FileUtils::getInstance()->createDirectory(dir);
     if (_allFolders.empty())
     {
-        FileUtils::getInstance()->createDirectory(dir);
         auto fn = dir + '/' + _dir.substr(_dir.find_last_of("/")  + 1 ) + '.' + FILEEXTENSION;
         log("save file name : %s" ,fn.c_str());
         
         auto fp = fopen(fn.c_str(), "wb");
+        CCASSERT(fp, "Open file error");
         int p = 0x89;
         size_t l = fwrite(&p, sizeof(int), 1, fp);
         CCASSERT(l == 1, "Set head error");
@@ -185,11 +186,41 @@ void ImageAlphaHelper::saveInOneFile(std::string dir)
                       {
                           this->writeToFlie(fp, pair.second);
                       });
+        
+        fclose(fp);
+    }
+    else
+    {
+        for (int i = 0; i < _allFolders.size(); ++i )
+        {
+            auto folder = _allFolders[i];
+            auto fn = dir + '/' + folder.substr(folder.find_last_of("/") + 1 ) + '.' + FILEEXTENSION;
+            log("Save file name : %s", fn.c_str());
+            
+            auto fp = fopen(fn.c_str(), "wb");
+            CCASSERT(fp, "Open file error");
+            int p = 0x89;
+            size_t l = fwrite(&p, sizeof(int), 1, fp);
+            CCASSERT(l == 1, "set head error");
+            
+            for (int j = 0; j < _total[i]; ++j)
+            {
+                auto file = _allFiles[j].substr(_allFiles[j].find_last_of("/") + 1);
+                log(" -- sub file : %s",file.c_str());
+                writeToFlie(fp, _imgAl.at(file));
+            }
+            
+            fclose(fp);
+        }
     }
 }
 
 void ImageAlphaHelper::writeToFlie(FILE *fp, ImageAlphaLut *lut)
 {
+    if (lut == nullptr)
+    {
+        return;
+    }
     unsigned char * buff = (unsigned char *)malloc(FILEHEADINFO - sizeof(int));
     
     CCASSERT(buff, "No more memory");

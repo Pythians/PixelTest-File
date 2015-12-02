@@ -32,6 +32,8 @@ public:
         _dir = dir;
         _allFiles.clear();
         _allFolders.clear();
+        _imgAl.clear();
+        _total.clear();
         findFiles(_dir);
     }
     
