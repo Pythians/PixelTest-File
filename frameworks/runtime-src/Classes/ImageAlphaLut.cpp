@@ -333,6 +333,9 @@ void ImageAlphaLut::moveBuffer()
 
 bool ImageAlphaLut::saveToFile(const std::string path) const
 {
+    
+    FileUtils::getInstance()->createDirectory(path);
+    
     // 分配文件头 BUFF
     unsigned char * buff = (unsigned char *)malloc(FILEHEADINFO);
     

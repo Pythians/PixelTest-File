@@ -3,42 +3,56 @@ local AlphaLutCreate = class("AlphaLutCreate",function ()
     return cc.LayerColor:create(cc.c4b(100,100,150,255))
 end)
 
+path = "/Users/wjdev02/Desktop/"
+
 function AlphaLutCreate:ctor()
 	self:setNodeEventEnabled(true)
     self.alphaLut = ImageAlphaHelper:new()
 	self.alphaLut:retain()
 	
-    print( device.writablePath )
+	self.isClip = true
+	
+    print( path )
 end
 
-path = "/Users/wjdev02/Desktop/"
 
 function AlphaLutCreate:keep()
     self.alphaLut:setIsClip(false)
     self.alphaLut:setDirectory( path .. "res/keep")
-    self.alphaLut:saveInOneFile( path .. "res/output/keep")
+    self.alphaLut:saveToFiles( path .. "res/output/keep")
+
+    print("-- keep")
+    self.label:setTextColor(cc.c4b(0,215,215,255))
+    self.label:setString("keep OK!!")
 end
 
 function AlphaLutCreate:clip()
+    self.alphaLut:setIsClip(true)
+    self.alphaLut:setDirectory( path .. "res/clip")
+    self.alphaLut:saveToFiles(path .. "res/output/clip")
 
-    -- self.alphaLut:setDirectory( path .. "res/clip")
-    -- self.alphaLut:saveToFiles(path .. "res/output/clip")
-
-    self.alphaLut:createAlphaLutsWithFile( path .. "res/output/keep/keep.bit")
-
-    local luts = self.alphaLut:getLutMap()
-    print (type(luts["building_1_1.png"]))
-
-    local lut = self.alphaLut:getImageImageLut("building_1_1.png")
-    print(type(lut))
-    print(type(self.alphaLut))
-    
+    print("-- clip")
+    self.label:setTextColor(cc.c4b(215,215,0,255))
+    self.label:setString("clip OK!!")
 end
 
 function AlphaLutCreate:multi()
+    if self.isClip then
+        self.alphaLut:setIsClip(true)
+    else
+        self.alphaLut:setIsClip(false)
+    end
     self.alphaLut:setDirectory( path .. "res/multi")
     self.alphaLut:saveInOneFile(path .. "res/output/multi")
-
+    print("-- multi")
+    
+    self.label:setTextColor(cc.c4b(215,0,215,255))
+    
+    if self.isClip then
+        self.label:setString("multi clip OK!!")
+    else
+        self.label:setString("multi OK!!")    
+    end
 end
 
 
@@ -62,26 +76,35 @@ function AlphaLutCreate:onTouchBegin(touch,event)
     bt2Area.x = 0
     bt2Area.y = 0
     
+    local btcpos = self.isClipBt:convertToNodeSpace(touchPoint)
+    local btcArea = self.isClipBt:getBoundingBox()
+    btcArea.x = 0
+    btcArea.y = 0
+    
     if cc.rectContainsPoint(bt1Area,bt1Pos) then
-        print("Touch button0 keep")
         self:keep()
-        self.label:setTextColor(cc.c4b(0,215,215,255))
-        self.label:setString("keep OK!!")
     end
 
     if cc.rectContainsPoint(bt0Area,bt0Pos) then
-        print("Touch button1 clip")
         self:clip()
-        self.label:setTextColor(cc.c4b(215,215,0,255))
-        self.label:setString("clip OK!!")
     end
 
     if cc.rectContainsPoint(bt2Area,bt2Pos) then
-        print("Touch button2 multi")
-
         self:multi()
-        self.label:setTextColor(cc.c4b(215,0,215,255))
-        self.label:setString("multi OK!!")
+    end
+    
+    if cc.rectContainsPoint(btcArea,btcpos) then
+    
+        if self.isClip then
+            self.isClip = false
+            self.isClipBt:setString("Clip OFF")
+            self.isClipBt:setTextColor(cc.c4b(246,132,34,255))
+        else
+            self.isClip = true
+            self.isClipBt:setString("Clip ON")
+            self.isClipBt:setTextColor(cc.c4b(0,255,0,255))
+        end
+
     end
 
     return false
@@ -95,31 +118,37 @@ function AlphaLutCreate:onEnter()
     self.button1 = cc.Label:create();
     self.button2 = cc.Label:create();
     self.label = cc.Label:create();
+    self.isClipBt = cc.Label:create();
     
     self.button0:setTextColor(cc.c4b(215,215,0,255))
     self.button1:setTextColor(cc.c4b(0,215,215,255))
     self.button2:setTextColor(cc.c4b(215,0,215,255))
     self.label:setTextColor(cc.c4b(215,215,215,255))
+    self.isClipBt:setTextColor(cc.c4b(0,255,0,255))
     
     self.button0:setString("clip")
     self.button1:setString("keep")
     self.button2:setString("multi")
     self.label:setString("hello") 
+    self.isClipBt:setString("Clip ON")
     
     self.button0:setSystemFontSize(64)
     self.button1:setSystemFontSize(64)
     self.button2:setSystemFontSize(64)
     self.label:setSystemFontSize(72)
+    self.isClipBt:setSystemFontSize(28)
     
     display.align(self.button0, display.CENTER, display.width / 3,display.cy)
     display.align(self.button1, display.CENTER, display.width / 3,display.cy * 3 / 2)
     display.align(self.button2, display.CENTER, display.width / 3,display.cy / 2)
     display.align(self.label, display.CENTER, display.width * 3 / 4, display.cy)
+    display.align(self.isClipBt, display.CENTER, display.width / 2, display.cy / 2)
     
     self:addChild(self.button0)
     self:addChild(self.button1)
     self:addChild(self.button2)
     self:addChild(self.label)
+    self:addChild(self.isClipBt)
     
     local listener = cc.EventListenerTouchOneByOne:create()
     listener:setSwallowTouches(true)
@@ -127,8 +156,6 @@ function AlphaLutCreate:onEnter()
     
     local eventDispatcher=self:getEventDispatcher()
     eventDispatcher:addEventListenerWithSceneGraphPriority(listener,self)
-
-    
    
 end
 
