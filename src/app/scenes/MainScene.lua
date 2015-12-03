@@ -11,8 +11,11 @@ function MainScene:ctor()
 end
 
 function MainScene:onEnter()
-    alphaLut.new():addTo(self)
---    pixelTextLayer.new():addTo(self)
+---------------------------------------
+--      切换工具和演示
+
+--    alphaLut.new():addTo(self)
+    pixelTextLayer.new():addTo(self)
     
 end
 

@@ -3,7 +3,10 @@ local AlphaLutCreate = class("AlphaLutCreate",function ()
     return cc.LayerColor:create(cc.c4b(100,100,150,255))
 end)
 
+-------------------------------------------------------------
+--  @field #string path 文件读写路径 （xcode 调试用）
 path = "/Users/wjdev02/Desktop/"
+--path = device.writablePath
 
 function AlphaLutCreate:ctor()
 	self:setNodeEventEnabled(true)

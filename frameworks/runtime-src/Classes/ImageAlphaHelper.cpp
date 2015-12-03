@@ -48,9 +48,6 @@ void ImageAlphaHelper::createAlphaLutsWithFile(const std::string &file)
     CCASSERT(rl == fl, "Read file error");
     fclose(fp);
     
-//    int * p = (int *)buff;
-//    buff = (unsigned char*)(++p);
-    
     size_t bl = sizeof(int);
     while (bl < fl)
     {
@@ -73,6 +70,7 @@ void ImageAlphaHelper::findFiles( std::string dir)
 {
     dirent * ptr;
     log("dir : %s ", dir.c_str());
+    // 读取文件夹下内容
     DIR * Dir = opendir(dir.c_str());
     
     CCASSERT(Dir, "Can't Read Directory");
@@ -139,7 +137,6 @@ void ImageAlphaHelper::saveToFiles(std::string dir)
             saveHelper(dir + '/' + _allFolders[i], i);
         }
     }
-//    _imgAl.clear();
 }
 
 void ImageAlphaHelper::saveHelper(std::string dir, int num)
