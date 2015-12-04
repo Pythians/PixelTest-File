@@ -35,7 +35,6 @@ ImageAlphaLut::ImageAlphaLut()
 
 ImageAlphaLut::~ImageAlphaLut()
 {
-    log("---------------------------------------------------------------\n release lut: %s", _name);
     CC_SAFE_FREE(_alphaLut);
     CC_SAFE_FREE(_name);
 }
@@ -413,6 +412,6 @@ void ImageAlphaLut::printLut() const {
         {
             printf("%d", getPixelAlpha(j + i * w));
         }
-        log("");
+        printf("\n");
     }
 }

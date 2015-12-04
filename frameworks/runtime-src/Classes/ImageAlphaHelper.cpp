@@ -11,6 +11,26 @@
 
 USING_NS_CC;
 
+ImageAlphaHelper * ImageAlphaHelper::create()
+{
+    auto ret = new ImageAlphaHelper();
+    if (ret)
+    {
+        ret->autorelease();
+    }
+    return ret;
+}
+
+ImageAlphaHelper * ImageAlphaHelper::create(std::string &dir)
+{
+    auto ret = new ImageAlphaHelper(dir);
+    if (ret)
+    {
+        ret->autorelease();
+    }
+    return ret;
+}
+
 ImageAlphaHelper::ImageAlphaHelper()
 : _dir("")
 , _isClip(true)
@@ -54,9 +74,7 @@ void ImageAlphaHelper::createAlphaLutsWithFile(const std::string &file)
         auto lut = ImageAlphaLut::createWithBuff(buff + bl);
         CCASSERT(lut, "create lut fail");
         _imgAl.insert(lut->getName(), lut);
-        log("create lut : %s" , lut->getName());
         bl += FILEHEADINFO - sizeof(int) + lut->getBufferSize();
-        log("buff lengh %ld", bl);
     }
     
 }
@@ -69,7 +87,7 @@ void ImageAlphaHelper::callback(bool b, float load, std::string msg)
 void ImageAlphaHelper::findFiles( std::string dir)
 {
     dirent * ptr;
-    log("dir : %s ", dir.c_str());
+//    log("dir : %s ", dir.c_str());
     // 读取文件夹下内容
     DIR * Dir = opendir(dir.c_str());
     
@@ -85,13 +103,13 @@ void ImageAlphaHelper::findFiles( std::string dir)
         else if (ptr->d_type == DT_DIR )
         {
             _allFolders.push_back(ptr->d_name );
-            log("find a Folder: %s", ptr->d_name);
+//            log("find a Folder: %s", ptr->d_name);
             findFiles( dir + '/' + ptr->d_name);
         }
         else
         {
             _allFiles.push_back( dir + '/' + ptr->d_name );
-            log("find a File: %s", ptr->d_name);
+//            log("find a File: %s", ptr->d_name);
             ++i;
         }
     }
@@ -105,7 +123,7 @@ void ImageAlphaHelper::readImage()
                   {
                       if (f.find(".png") != std::string::npos)
                       {
-                          log("Add pic: %s", f.c_str());
+//                          log("Add pic: %s", f.c_str());
                           auto img = f.substr(f.find_last_of("/") + 1);
                           if (_isClip)
                           {
@@ -142,7 +160,7 @@ void ImageAlphaHelper::saveToFiles(std::string dir)
 void ImageAlphaHelper::saveHelper(std::string dir, int num)
 {
     FileUtils::getInstance()->createDirectory(dir);
-    log("sub dir : %s", dir.c_str());
+//    log("sub dir : %s", dir.c_str());
     int i = 0, max = _total[num];
     for (int j = num; j > 0; --j)
     {
@@ -159,8 +177,8 @@ void ImageAlphaHelper::saveHelper(std::string dir, int num)
         {
             lut->saveToFile(dir);
         }
-        else
-            log("No find file %s", file.c_str());
+//        else
+//            log("No find file %s", file.c_str());
     }
 }
 
@@ -171,7 +189,7 @@ void ImageAlphaHelper::saveInOneFile(std::string dir)
     if (_allFolders.empty())
     {
         auto fn = dir + '/' + _dir.substr(_dir.find_last_of("/")  + 1 ) + '.' + FILEEXTENSION;
-        log("save file name : %s" ,fn.c_str());
+//        log("save file name : %s" ,fn.c_str());
         
         auto fp = fopen(fn.c_str(), "wb");
         CCASSERT(fp, "Open file error");
@@ -192,7 +210,7 @@ void ImageAlphaHelper::saveInOneFile(std::string dir)
         {
             auto folder = _allFolders[i];
             auto fn = dir + '/' + folder.substr(folder.find_last_of("/") + 1 ) + '.' + FILEEXTENSION;
-            log("Save file name : %s", fn.c_str());
+//            log("Save file name : %s", fn.c_str());
             
             auto fp = fopen(fn.c_str(), "wb");
             CCASSERT(fp, "Open file error");
@@ -203,7 +221,7 @@ void ImageAlphaHelper::saveInOneFile(std::string dir)
             for (int j = 0; j < _total[i]; ++j)
             {
                 auto file = _allFiles[j].substr(_allFiles[j].find_last_of("/") + 1);
-                log(" -- sub file : %s",file.c_str());
+//                log(" -- sub file : %s",file.c_str());
                 writeToFlie(fp, _imgAl.at(file));
             }
             

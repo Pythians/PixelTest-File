@@ -606,7 +606,7 @@ int lua_cocos2dx_ImageAlphaHelper_constructor(lua_State* tolua_S)
     do {
         if (argc == 0)
         {
-            cobj = new ImageAlphaHelper();
+            cobj = ImageAlphaHelper::create();
         }
         else if (argc == 1)
         {
@@ -618,16 +618,13 @@ int lua_cocos2dx_ImageAlphaHelper_constructor(lua_State* tolua_S)
                 tolua_error(tolua_S,"invalid arguments in function 'lua_cocos2dx_ImageAlphaHelper_saveToFiles'", nullptr);
                 return 0;
             }
-            cobj = new ImageAlphaHelper(arg0);
+            cobj = ImageAlphaHelper::create(arg0);
         }
         else
         {
             break;
         }
-        cobj->autorelease();
-        int ID =  (int)cobj->_ID ;
-        int* luaID =  &cobj->_luaID ;
-        toluafix_pushusertype_ccobject(tolua_S, ID, luaID, (void*)cobj,"ImageAlphaHelper");
+        object_to_luaval(tolua_S, "ImageAlphaHelper", cobj);
         return 1;
     } while (0);
     luaL_error(tolua_S, "%s has wrong number of arguments: %d, was expecting %d \n", "ImageAlphaHelper:ImageAlphaHelper",argc, 0);

@@ -10,8 +10,8 @@ function pixelTestLayer:ctor()
 end
 
 function pixelTestLayer:onEnter()
-    local str="keep/building_1_1.png"
-    str = "res/multi/tiles4image/fight_map_tile1.png"
+    local str="Test/keep/building_1_1.png"
+--    str = "res/multi/tiles4image/fight_map_tile1.png"
 
     self.sp=display.newSprite(str):addTo(self):pos(display.cx,display.cy)
     
@@ -22,7 +22,7 @@ function pixelTestLayer:onEnter()
 --    通过图片创建 
 --    @param str string 图片名
 --    @return #ImageAlpha 像素检测对象
---    self.spImage=ImageAlpha:createWithImage(str);
+    self.spImage=ImageAlpha:createWithImage(str);
 ------------------------------------------------------------
 --    通过图片创建 并剪裁四周透明区域
 --    @param string 图片名
@@ -40,10 +40,10 @@ function pixelTestLayer:onEnter()
 --   持有创建的对象需要手动调用 retain
 ------------------------------------------------------------
 --  创建辅助对象
-    local luts = ImageAlphaHelper:new()
+--    local luts = ImageAlphaHelper:new()
 ------------------------------------------------------------
 --  
-    luts:createAlphaLutsWithFile( path .. "res/output/multi/tiles4image.bit")
+--    luts:createAlphaLutsWithFile( path .. "res/output/multi/tiles4image.bit")
 ------------------------------------------------------------
 --  获取单个像素检测对象
 --    @param str string 图片名
@@ -52,8 +52,8 @@ function pixelTestLayer:onEnter()
 ------------------------------------------------------------
 --  获取全部像素检测对象
 --    @return #table 所有像素检测的对象 键为对应的图片名
-    local tab = luts:getLutMap()
-    self.spImage = tab["fight_map_tile1.png"]
+--    local tab = luts:getLutMap()
+--    self.spImage = tab["fight_map_tile1.png"]
     -- 持有对象
     self.spImage:retain();
     

@@ -1,3 +1,19 @@
+--[[
+
+**图片全名不能超过 45 个**
+
+  下面两个文件夹放图片文件 不能有文件夹
+    res/clip -> 剪裁保存信息，不保存边界透明区域
+    res/keep -> 完整保存像素信息
+    
+  下面文件夹只放文件夹 不能有文件
+    res/multi -> 将子文件夹内的图片信息保存在以子文件夹名命名的文件中
+    **此文件夹下只能是文件夹
+    **子文件夹只能有一级
+    
+  指定保存文件路径可写
+  可以创建指定路径
+--]]
 
 local AlphaLutCreate = class("AlphaLutCreate",function ()
     return cc.LayerColor:create(cc.c4b(100,100,150,255))
@@ -10,56 +26,20 @@ path = "/Users/wjdev02/Desktop/"
 
 function AlphaLutCreate:ctor()
 	self:setNodeEventEnabled(true)
-    self.alphaLut = ImageAlphaHelper:new()
-	self.alphaLut:retain()
 	
+    self.alh = ImageAlphaHelper:new()
+    self.alh:retain()
+
 	self.isClip = true
 	
-    print( path )
 end
 
-
-function AlphaLutCreate:keep()
-    self.alphaLut:setIsClip(false)
-    self.alphaLut:setDirectory( path .. "res/keep")
-    self.alphaLut:saveToFiles( path .. "res/output/keep")
-
-    print("-- keep")
-    self.label:setTextColor(cc.c4b(0,215,215,255))
-    self.label:setString("keep OK!!")
-end
-
-function AlphaLutCreate:clip()
-    self.alphaLut:setIsClip(true)
-    self.alphaLut:setDirectory( path .. "res/clip")
-    self.alphaLut:saveToFiles(path .. "res/output/clip")
-
-    print("-- clip")
-    self.label:setTextColor(cc.c4b(215,215,0,255))
-    self.label:setString("clip OK!!")
-end
-
-function AlphaLutCreate:multi()
-    if self.isClip then
-        self.alphaLut:setIsClip(true)
-    else
-        self.alphaLut:setIsClip(false)
-    end
-    self.alphaLut:setDirectory( path .. "res/multi")
-    self.alphaLut:saveInOneFile(path .. "res/output/multi")
-    print("-- multi")
-    
-    self.label:setTextColor(cc.c4b(215,0,215,255))
-    
-    if self.isClip then
-        self.label:setString("multi clip OK!!")
-    else
-        self.label:setString("multi OK!!")    
-    end
-end
 
 
 function AlphaLutCreate:onTouchBegin(touch,event)
+    
+--    local ALHer = ImageAlphaHelper:new()
+    local ALHer = self.alh
     
     local touchPoint=touch:getLocation()
     
@@ -85,15 +65,53 @@ function AlphaLutCreate:onTouchBegin(touch,event)
     btcArea.y = 0
     
     if cc.rectContainsPoint(bt1Area,bt1Pos) then
-        self:keep()
+        ALHer:setIsClip(false)
+        
+        -----
+        -- 读取图片 路径
+        ALHer:setDirectory( path .. "res/keep")
+        --    ALHer:saveToFiles( path .. "res/output/keep")
+        ----
+        -- 保存路径 
+        -- 单独文件
+        ALHer:saveToFiles( path .."output/keep")
+
+        --print("-- keep")
+        self.label:setTextColor(cc.c4b(0,215,215,255))
+        self.label:setString("keep OK!!")
     end
 
     if cc.rectContainsPoint(bt0Area,bt0Pos) then
-        self:clip()
+        ALHer:setIsClip(true)
+        ALHer:setDirectory( path .. "res/clip")
+        --    ALHer:saveToFiles(path .. "res/output/clip")
+        ALHer:saveToFiles(path .. "output/clip")
+
+        print("-- clip")
+        self.label:setTextColor(cc.c4b(215,215,0,255))
+        self.label:setString("clip OK!!")
     end
 
     if cc.rectContainsPoint(bt2Area,bt2Pos) then
-        self:multi()
+        if self.isClip then
+            ALHer:setIsClip(true)
+        else
+            ALHer:setIsClip(false)
+        end
+        ALHer:setDirectory( path .. "res/multi")
+        --    ALHer:saveInOneFile(path .. "res/output/multi")
+        ---
+        -- 保存为单个文件
+        ALHer:saveInOneFile(path .. "output/multi")
+        print("-- multi")
+
+        self.label:setTextColor(cc.c4b(215,0,215,255))
+
+        if self.isClip then
+            self.label:setString("multi clip OK!!")
+        else
+            self.label:setString("multi OK!!")    
+        end
     end
     
     if cc.rectContainsPoint(btcArea,btcpos) then
@@ -163,10 +181,7 @@ function AlphaLutCreate:onEnter()
 end
 
 function AlphaLutCreate:onExit()
-
-    self.alphaLut:release()
-
+	self.alh:release()
 end
-
 
 return AlphaLutCreate

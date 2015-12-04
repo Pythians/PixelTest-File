@@ -14,8 +14,8 @@ function MainScene:onEnter()
 ---------------------------------------
 --      切换工具和演示
 
---    alphaLut.new():addTo(self)
-    pixelTextLayer.new():addTo(self)
+    alphaLut.new():addTo(self)
+--    pixelTextLayer.new():addTo(self)
     
 end
 

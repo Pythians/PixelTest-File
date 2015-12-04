@@ -15,10 +15,9 @@ class ImageAlphaHelper : public cocos2d::Ref
 {
     
 public:
-    ImageAlphaHelper();
-    // 读取保存文件用 文件路径
-    explicit ImageAlphaHelper( std::string dir);
-    ~ImageAlphaHelper();
+    
+    static ImageAlphaHelper * create();
+    static ImageAlphaHelper * create(std::string &dir);
     
     // 多图片文件快速保存
     void saveToFiles( std::string dir );
@@ -80,6 +79,10 @@ public:
         return _isClip;
     }
 protected:
+    ImageAlphaHelper();
+    // 读取保存文件用 文件路径
+    explicit ImageAlphaHelper( std::string dir);
+    ~ImageAlphaHelper();
     
     void findFiles( std::string dir);
     void readImage();
