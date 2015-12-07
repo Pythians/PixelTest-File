@@ -53,11 +53,11 @@ public:
     {
         if (_isOptimize)
         {
-            return _offsetWidth * _offsetHeight / 8;
+            return _offsetWidth * _offsetHeight / 8 + 1;
         }
         else
         {
-            return _width * _height / 8;
+            return _width * _height / 8 + 1;
         }
     }
 

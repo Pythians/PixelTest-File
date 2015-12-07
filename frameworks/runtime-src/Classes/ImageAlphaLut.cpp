@@ -120,7 +120,11 @@ bool ImageAlphaLut::initWithFile(const std::string file)
     fclose(fp);
     int * p = (int *)buff;
 
-    return initWithBuff(++p);
+    bool b = initWithBuff(++p);
+    
+    CC_SAFE_FREE(buff);
+    
+    return b;
 }
 
 
@@ -139,7 +143,7 @@ bool ImageAlphaLut::initWithBuff(const void *buff)
     _isOptimize     = *bp;
     
     char * cp = (char*)(++bp);
-    _name = (char*)malloc(strlen(cp));
+    _name = (char*)malloc(strlen(cp) + 1);
     
     CCASSERT(_name, "No more memery");
     strcpy(_name, cp);
@@ -151,27 +155,26 @@ bool ImageAlphaLut::initWithBuff(const void *buff)
 
     unsigned char * data = (unsigned char*)buff;
     
-    memcpy(_alphaLut, data + FILEHEADINFO - sizeof(int), getBufferSize() * sizeof(unsigned char));
+    data += FILEHEADINFO - sizeof(int);
+    
+    memcpy(_alphaLut, data, getBufferSize() * sizeof(unsigned char));
 
     return true;
 }
 
+//AutoreleasePool pool;
 bool ImageAlphaLut::initWithImage(std::string file)
 {
-    auto na = file;
-    if (FileUtils::getInstance()->isAbsolutePath(file.c_str()))
-    {
-        na = file.substr(file.find_last_of("/") + 1);
-    }
-    _name = (char *)malloc(na.length());
+    file = FileUtils::getInstance()->fullPathForFilename(file);
+    auto na = file.substr(file.find_last_of("/") + 1);
+    
+    _name = (char *)malloc(na.length() + 1);
     strcpy(_name, na.c_str());
     
     
-    bool b = true;
     auto img = new Image();
     
-    if (!img->initWithImageFile(file))
-        b = false;
+    CCASSERT(img->initWithImageFile(file), "Init image fail");
     
     auto lengh = img->getDataLen();
     CCASSERT(lengh >= 8, "NO image data");
@@ -184,12 +187,15 @@ bool ImageAlphaLut::initWithImage(std::string file)
     // 提取图片透明信息
     for (int i = 0 ; i < _width * _height; ++i)
     {
-        if (data[i*4]) {
+        if (data[i*4+3] )
+        {
             setPixelAlpha(i);
         }
     }
     
-    return b;
+    CC_SAFE_RELEASE(img);
+    
+    return true;
 }
 
 bool ImageAlphaLut::initWithImageAndClip(const std::string file)
@@ -300,9 +306,9 @@ void ImageAlphaLut::resetBuffer()
     // 清除之前的 BUFF
     CC_SAFE_FREE(_alphaLut);
     // 重新分配 BUFF
-    _alphaLut = static_cast<unsigned char*>(malloc( _width * _height / 8));
+    _alphaLut = static_cast<unsigned char*>(malloc( getBufferSize() ));
     // 初始化为 0
-    memset(_alphaLut, 0, _width * _height / 8);
+    memset(_alphaLut, 0, getBufferSize());
 }
 
 void ImageAlphaLut::moveBuffer()
@@ -310,8 +316,8 @@ void ImageAlphaLut::moveBuffer()
     // Move buffer
     
     // new buffef
-    auto buff = static_cast<unsigned char *>(malloc(_offsetWidth * _offsetHeight / 8));
-    memset(buff, 0, _offsetWidth * _offsetHeight / 8);
+    auto buff = static_cast<unsigned char *>(malloc(getBufferSize()));
+    memset(buff, 0, getBufferSize());
     // 计算前面的偏移
     auto offsetBuff = _width * _offsetY + _offsetX;
     for (int i = 0; i < _offsetHeight; ++i)
@@ -325,9 +331,10 @@ void ImageAlphaLut::moveBuffer()
         }
     }
     // 删除原 BUFF
-    free(_alphaLut);
+    CC_SAFE_FREE(_alphaLut);
     // 指向偏移 BUFF
     _alphaLut = buff;
+    buff = nullptr;
 }
 
 bool ImageAlphaLut::saveToFile(const std::string path) const

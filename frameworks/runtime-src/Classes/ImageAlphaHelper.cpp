@@ -54,8 +54,8 @@ void ImageAlphaHelper::createAlphaLutsWithFile(const std::string &file)
     
     auto fp = fopen(fn.c_str(), "rb");
     
-    fseek(fp, 0, SEEK_END);
     CCASSERT(fp, "Can't open file");
+    fseek(fp, 0, SEEK_END);
     size_t fl = ftell(fp);
     rewind(fp);
     
@@ -77,6 +77,7 @@ void ImageAlphaHelper::createAlphaLutsWithFile(const std::string &file)
         bl += FILEHEADINFO - sizeof(int) + lut->getBufferSize();
     }
     
+    CC_SAFE_FREE(buff);
 }
 
 void ImageAlphaHelper::callback(bool b, float load, std::string msg)
@@ -113,6 +114,7 @@ void ImageAlphaHelper::findFiles( std::string dir)
             ++i;
         }
     }
+    closedir(Dir);
     if (i) _total.push_back(i);
 }
 
@@ -255,6 +257,7 @@ void ImageAlphaHelper::writeToFlie(FILE *fp, ImageAlphaLut *lut)
     strcpy(cp, lut->getName());
     
     size_t len = fwrite(buff, sizeof(unsigned char), FILEHEADINFO - sizeof(int), fp);
+    CC_SAFE_FREE(buff);
     
     CCASSERT(len == FILEHEADINFO - sizeof(int), "write file error");
     

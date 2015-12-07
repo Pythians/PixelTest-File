@@ -21,8 +21,8 @@ end)
 
 -------------------------------------------------------------
 --  @field #string path 文件读写路径 （xcode 调试用）
-path = "/Users/wjdev02/Desktop/"
---path = device.writablePath
+--path = "/Users/wjdev02/Desktop/"
+path = device.writablePath
 
 function AlphaLutCreate:ctor()
 	self:setNodeEventEnabled(true)
@@ -32,11 +32,19 @@ function AlphaLutCreate:ctor()
 
 	self.isClip = true
 	
+	self.touch = true
+	
 end
 
 
 
 function AlphaLutCreate:onTouchBegin(touch,event)
+    
+    if self.touch then
+        self.touch = false
+    else
+        return false
+    end
     
 --    local ALHer = ImageAlphaHelper:new()
     local ALHer = self.alh
@@ -127,6 +135,8 @@ function AlphaLutCreate:onTouchBegin(touch,event)
         end
 
     end
+    
+    self.touch = true
 
     return false
     
