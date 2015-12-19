@@ -103,21 +103,26 @@ ImageAlphaLut* ImageAlphaLut::createWithImageAndClip(const std::string file){
 
 bool ImageAlphaLut::initWithFile(const std::string file)
 {
-    // 打开文件
-    auto fp = fopen(FileUtils::getInstance()->fullPathForFilename(file).c_str(), "rb");
-    // 获取文件大小
-    fseek(fp, 0, SEEK_END);
-    long fs = ftell(fp);
-    rewind(fp);
+//    // 打开文件
+//    auto fp = fopen(FileUtils::getInstance()->fullPathForFilename(file).c_str(), "rb");
+//    // 获取文件大小
+//    fseek(fp, 0, SEEK_END);
+//    long fs = ftell(fp);
+//    rewind(fp);
     
+    auto data = FileUtils::getInstance()->getDataFromFile(file);    
+    
+    auto buff = data.getBytes();
+    data.fastSet(nullptr, 0);
+
     // 分配文件头信息 BUFF
-    unsigned char * buff = (unsigned char *)malloc(fs);
+//    unsigned char * buff = (unsigned char *)malloc(fs);
     // 读取文件头信息
-    size_t rs = fread(buff, sizeof(unsigned char), fs, fp);
+//    size_t rs = fread(buff, sizeof(unsigned char), fs, fp);
 
-    CCASSERT(rs == fs, "Read file info error");
+//    CCASSERT(rs == fs, "Read file info error");
 
-    fclose(fp);
+//    fclose(fp);
     int * p = (int *)buff;
 
     bool b = initWithBuff(++p);

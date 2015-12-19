@@ -50,23 +50,27 @@ ImageAlphaHelper::~ImageAlphaHelper()
 
 void ImageAlphaHelper::createAlphaLutsWithFile(const std::string &file)
 {
-    auto fn = FileUtils::getInstance()->fullPathForFilename(file);
+//    auto fn = FileUtils::getInstance()->fullPathForFilename(file);
+//    
+//    auto fp = fopen(fn.c_str(), "rb");
+//    
+//    CCASSERT(fp, "Can't open file");
+//    fseek(fp, 0, SEEK_END);
+//    size_t fl = ftell(fp);
+//    rewind(fp);
+//    
+//
+//    auto rl = fread(buff, sizeof(unsigned char), fl, fp);
+//    
+//    CCASSERT(rl == fl, "Read file error");
+//    fclose(fp);
     
-    auto fp = fopen(fn.c_str(), "rb");
+    auto data = FileUtils::getInstance()->getDataFromFile(file);
+    auto fl = data.getSize();
     
-    CCASSERT(fp, "Can't open file");
-    fseek(fp, 0, SEEK_END);
-    size_t fl = ftell(fp);
-    rewind(fp);
     
-    auto buff = (unsigned char *)malloc(fl);
-    
-    CCASSERT(buff, "No more memory");
-    
-    auto rl = fread(buff, sizeof(unsigned char), fl, fp);
-    
-    CCASSERT(rl == fl, "Read file error");
-    fclose(fp);
+    auto buff = data.getBytes();
+    data.fastSet(nullptr, 0);
     
     size_t bl = sizeof(int);
     while (bl < fl)
